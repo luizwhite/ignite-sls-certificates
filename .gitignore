@@ -1,9 +1,15 @@
-# package directories
+# package
 node_modules
 jspm_packages
 
-# Serverless directories
+# Serverless
 .serverless
 
-# esbuild directories
+# esbuild
 .esbuild
+
+# Dynamodb
+.dynamodb
+
+# Temporary
+tmp/

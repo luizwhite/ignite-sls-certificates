@@ -1,2 +1,2 @@
-export { default as hello } from './hello';
-export { default as hello2 } from './hello2';
+export { default as generateCertificate } from './generateCertificate';
+export { default as verifyCertificate } from './verifyCertificate';

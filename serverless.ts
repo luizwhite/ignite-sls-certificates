@@ -3,12 +3,18 @@ import type { AWS } from '@serverless/typescript';
 import * as functionHandlers from '@functions';
 
 const serverlessConfiguration: AWS = {
-  service: 'ignite-certificate',
+  service: 'ignite-certificates',
   frameworkVersion: '3',
-  plugins: ['serverless-esbuild', 'serverless-offline'],
+  plugins: [
+    'serverless-esbuild',
+    'serverless-dynamodb-local',
+    'serverless-offline',
+  ],
   provider: {
     name: 'aws',
     runtime: 'nodejs14.x',
+    profile: 'ignite-sls',
+    region: 'sa-east-1',
     apiGateway: {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
@@ -16,10 +22,15 @@ const serverlessConfiguration: AWS = {
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
+      AWS_BUCKET_NAME:
+        'https://ignite-certificates-files.s3.sa-east-1.amazonaws.com',
+    },
+    iam: {
+      role: 'arn:aws:iam::957059127051:role/ignite-certificates-sa-east-1-lambdaRole-dynamodb',
     },
   },
   functions: functionHandlers,
-  package: { individually: true },
+  package: { individually: false, include: ['./src/templates/**/*'] },
   custom: {
     esbuild: {
       bundle: true,
@@ -30,6 +41,41 @@ const serverlessConfiguration: AWS = {
       define: { 'require.resolve': undefined },
       platform: 'node',
       concurrency: 10,
+      external: ['chrome-aws-lambda'],
+    },
+    dynamodb: {
+      stages: ['dev', 'local'],
+      start: {
+        port: 8000,
+        inMemory: true,
+        migrate: true,
+      },
+    },
+  },
+  resources: {
+    Resources: {
+      dbUsersCertificates: {
+        Type: 'AWS::DynamoDB::Table',
+        Properties: {
+          TableName: 'users_certificates',
+          AttributeDefinitions: [
+            {
+              AttributeName: 'id',
+              AttributeType: 'S',
+            },
+          ],
+          KeySchema: [
+            {
+              AttributeName: 'id',
+              KeyType: 'HASH',
+            },
+          ],
+          ProvisionedThroughput: {
+            ReadCapacityUnits: 5,
+            WriteCapacityUnits: 5,
+          },
+        },
+      },
     },
   },
 };

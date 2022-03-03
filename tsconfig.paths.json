@@ -4,7 +4,8 @@
     "paths": {
       "@functions": ["src/functions/index.ts"],
       "@functions/*": ["src/functions/*"],
-      "@libs/*": ["src/libs/*"]
+      "@libs/*": ["src/libs/*"],
+      "@utils/*": ["src/utils/*"]
     }
   }
 }
